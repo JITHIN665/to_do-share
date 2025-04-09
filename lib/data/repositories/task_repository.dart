@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:to_do/core/constants/app_constants.dart';
 import 'package:to_do/data/models/task_model.dart';
 
@@ -11,7 +12,13 @@ class TaskRepository {
         .where('creatorId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => TaskModel.fromMap(doc.data())).toList());
+        .handleError((error) {
+          debugPrint('Error getting tasks: $error');
+          return Stream.value([]);
+        })
+        .map((snapshot) => snapshot.docs
+            .map((doc) => TaskModel.fromMap(doc.data()))
+            .toList());
   }
 
   Stream<List<TaskModel>> getSharedTasks(String userId) {
@@ -20,7 +27,13 @@ class TaskRepository {
         .where('sharedWith', arrayContains: userId)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => TaskModel.fromMap(doc.data())).toList());
+        .handleError((error) {
+          debugPrint('Error getting shared tasks: $error');
+          return Stream.value([]);
+        })
+        .map((snapshot) => snapshot.docs
+            .map((doc) => TaskModel.fromMap(doc.data()))
+            .toList());
   }
 
   Future<void> addTask(TaskModel task) async {
@@ -51,6 +64,8 @@ class TaskRepository {
   }
 
   Future<void> shareTask(String taskId, String userId) async {
+    print(taskId);
+    print("gggggggggggggggggggggggggggg");
     await _firestore.collection(AppConstants.tasksCollection).doc(taskId).update({
       'sharedWith': FieldValue.arrayUnion([userId]),
     });

@@ -1,107 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do/data/models/task_model.dart';
 import 'package:to_do/presentation/view_models/task_view_model.dart';
+import 'package:to_do/widgets/common_text_field.dart';
+import 'package:to_do/widgets/date_picker_widget.dart';
 
-class EditTaskView extends StatefulWidget {
+class EditTaskView extends StatelessWidget {
   final TaskModel task;
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
-  EditTaskView({required this.task});
-
-  @override
-  _EditTaskViewState createState() => _EditTaskViewState();
-}
-
-class _EditTaskViewState extends State<EditTaskView> {
-  late final TextEditingController _titleController;
-  late final TextEditingController _descriptionController;
-  late DateTime _dueDate;
-  late bool _isCompleted;
-
-  @override
-  void initState() {
-    super.initState();
-    _titleController = TextEditingController(text: widget.task.title);
-    _descriptionController = TextEditingController(text: widget.task.description);
-    _dueDate = widget.task.dueDate;
-    _isCompleted = widget.task.isCompleted;
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
+  EditTaskView({super.key, required this.task}) {
+    _titleController.text = task.title;
+    _descriptionController.text = task.description;
   }
 
   @override
   Widget build(BuildContext context) {
     final taskViewModel = Provider.of<TaskViewModel>(context);
+    DateTime selectedDate = task.dueDate;
+    bool isCompleted = task.isCompleted;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Task')),
+      appBar: AppBar(title: const Text('Edit Task')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          child: Column(
+          key: _formKey,
+          child: ListView(
             children: [
-              TextFormField(
+              CommonTextField(
                 controller: _titleController,
-                decoration: InputDecoration(labelText: 'Title'),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter a title' : null,
+                labelText: 'Title',
+                validator: (value) => value?.isEmpty ?? true ? 'Please enter a title' : null,
               ),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-              ),
-              ListTile(
-                title: Text('Due Date: ${DateFormat.yMd().format(_dueDate)}'),
-                trailing: Icon(Icons.calendar_today),
-                onTap: () async {
-                  final pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: _dueDate,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(Duration(days: 365)),
-                  );
-                  if (pickedDate != null) {
-                    setState(() {
-                      _dueDate = pickedDate;
-                    });
-                  }
-                },
-              ),
-              CheckboxListTile(
-                title: Text('Completed'),
-                value: _isCompleted,
-                onChanged: (value) {
-                  setState(() {
-                    _isCompleted = value!;
-                  });
-                },
-              ),
-              SizedBox(height: 20),
+              const SizedBox(height: 16),
+              CommonTextField(controller: _descriptionController, labelText: 'Description', maxLines: 3),
+              const SizedBox(height: 16),
+              DatePickerWidget(initialDate: task.dueDate, onDateSelected: (date) => selectedDate = date),
+              CheckboxListTile(title: const Text('Completed'), value: isCompleted, onChanged: (value) => isCompleted = value ?? false),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  try {
-                    final updatedTask = widget.task.copyWith(
-                      title: _titleController.text,
-                      description: _descriptionController.text,
-                      dueDate: _dueDate,
-                      isCompleted: _isCompleted,
-                    );
-                    await taskViewModel.updateTask(updatedTask);
-                    Navigator.pop(context);
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Failed to update task: $e')),
-                    );
+                  if (_formKey.currentState!.validate()) {
+                    try {
+                      final updatedTask = task.copyWith(
+                        title: _titleController.text,
+                        description: _descriptionController.text,
+                        dueDate: selectedDate,
+                        isCompleted: isCompleted,
+                      );
+                      await taskViewModel.updateTask(updatedTask);
+                      Navigator.pop(context);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update task: $e')));
+                    }
                   }
                 },
-                child: Text('Update Task'),
+                child: const Text('Update Task'),
               ),
             ],
           ),

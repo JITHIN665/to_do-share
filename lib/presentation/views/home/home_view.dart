@@ -6,22 +6,8 @@ import 'package:to_do/presentation/view_models/auth_view_model.dart';
 import 'package:to_do/presentation/view_models/task_view_model.dart';
 import 'package:to_do/widgets/task_item_widget.dart';
 
-class HomeView extends StatefulWidget {
-  @override
-  _HomeViewState createState() => _HomeViewState();
-}
-
-class _HomeViewState extends State<HomeView> {
-  @override
-  void initState() {
-    super.initState();
-    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-    final taskViewModel = Provider.of<TaskViewModel>(context, listen: false);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      taskViewModel.loadTasks();
-      taskViewModel.loadSharedTasks();
-    });
-  }
+class HomeView extends StatelessWidget {
+  const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,40 +18,39 @@ class _HomeViewState extends State<HomeView> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('My Tasks'),
+          title: const Text('My Tasks'),
           actions: [
             IconButton(
-              icon: Icon(Icons.logout),
+              icon: const Icon(Icons.logout),
               onPressed: () async {
                 await authViewModel.signOut();
                 Navigator.pushReplacementNamed(context, AppRoutes.login);
               },
             ),
           ],
-          bottom: TabBar(
-            tabs: [
-              Tab(text: 'My Tasks'),
-              Tab(text: 'Shared With Me'),
-            ],
-          ),
+          bottom: const TabBar(tabs: [Tab(text: 'My Tasks'), Tab(text: 'Shared With Me')]),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.pushNamed(context, AppRoutes.addTask),
-          child: Icon(Icons.add),
-        ),
+        floatingActionButton: FloatingActionButton(onPressed: () => Navigator.pushNamed(context, AppRoutes.addTask), child: const Icon(Icons.add)),
         body: TabBarView(
-          children: [
-            _buildTaskList(taskViewModel.tasks, true),
-            _buildTaskList(taskViewModel.sharedTasks, false),
-          ],
+          children: [_TaskList(tasks: taskViewModel.tasks, isOwner: true), _TaskList(tasks: taskViewModel.sharedTasks, isOwner: false)],
         ),
       ),
     );
   }
+}
 
-  Widget _buildTaskList(List<TaskModel> tasks, bool isOwner) {
+class _TaskList extends StatelessWidget {
+  final List<TaskModel> tasks;
+  final bool isOwner;
+
+  const _TaskList({required this.tasks, required this.isOwner});
+
+  @override
+  Widget build(BuildContext context) {
+    final taskViewModel = Provider.of<TaskViewModel>(context, listen: false);
+
     if (tasks.isEmpty) {
-      return Center(child: Text('No tasks found'));
+      return const Center(child: Text('No tasks found'));
     }
 
     return ListView.builder(
@@ -74,21 +59,9 @@ class _HomeViewState extends State<HomeView> {
         final task = tasks[index];
         return TaskItemWidget(
           task: task,
-          onTap: () => Navigator.pushNamed(
-            context,
-            AppRoutes.taskDetail,
-            arguments: task,
-          ),
-          onEdit: isOwner
-              ? () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.editTask,
-                    arguments: task,
-                  )
-              : null,
-          onDelete: isOwner
-              ? () => _deleteTask(context, task)
-              : null,
+          onTap: () => Navigator.pushNamed(context, AppRoutes.taskDetail, arguments: task),
+          onEdit: isOwner ? () => Navigator.pushNamed(context, AppRoutes.editTask, arguments: task) : null,
+          onDelete: isOwner ? () => _deleteTask(context, task) : null,
         );
       },
     );
@@ -99,9 +72,7 @@ class _HomeViewState extends State<HomeView> {
     try {
       await taskViewModel.deleteTask(task.id);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete task: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to delete task: $e')));
     }
   }
 }

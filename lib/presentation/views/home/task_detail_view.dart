@@ -8,7 +8,7 @@ import 'package:to_do/presentation/views/home/edit_task_view.dart';
 class TaskDetailView extends StatelessWidget {
   final TaskModel task;
 
-  TaskDetailView({required this.task});
+  const TaskDetailView({required this.task});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class TaskDetailView extends StatelessWidget {
     final isCreator = authViewModel.user?.id == task.creatorId;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Task Details')),
+      appBar: AppBar(title: const Text('Task Details')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -26,17 +26,17 @@ class TaskDetailView extends StatelessWidget {
               task.title,
               // style: Theme.of(context).textTheme.headline5,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Due: ${DateFormat.yMMMd().add_jm().format(task.dueDate)}',
               // style: Theme.of(context).textTheme.subtitle1,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Status: ${task.isCompleted ? 'Completed' : 'Pending'}',
               // style: Theme.of(context).textTheme.subtitle1,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Description:',
               // style: Theme.of(context).textTheme.subtitle1!.copyWith(
@@ -63,7 +63,7 @@ class TaskDetailView extends StatelessWidget {
                   builder: (_) => EditTaskView(task: task),
                 ),
               ),
-              child: Icon(Icons.edit),
+              child: const Icon(Icons.edit),
             )
           : null,
     );
