@@ -6,6 +6,7 @@ import 'package:to_do/data/repositories/auth_repository.dart';
 import 'package:to_do/data/repositories/task_repository.dart';
 import 'package:to_do/presentation/view_models/auth_view_model.dart';
 import 'package:to_do/presentation/view_models/task_view_model.dart';
+import 'package:to_do/presentation/views/auth/app_entry.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +50,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Task Share',
         theme: ThemeData(primarySwatch: Colors.blue, visualDensity: VisualDensity.adaptivePlatformDensity),
-        initialRoute: AppRoutes.login,
+        home: const AppEntry(),
         onGenerateRoute: AppRoutes.generateRoute,
         debugShowCheckedModeBanner: false,
       ),

@@ -39,6 +39,7 @@ class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin 
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           automaticallyImplyLeading: false,
           title: const Text('My Tasks'),
           actions: [

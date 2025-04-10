@@ -5,14 +5,21 @@ import 'package:to_do/data/repositories/auth_repository.dart';
 class AuthViewModel with ChangeNotifier {
   final AuthRepository _repository;
   UserModel? _user;
+  bool _isLoading = true;
 
   AuthViewModel(this._repository);
 
   UserModel? get user => _user;
   bool get isAuthenticated => _user != null;
+  bool get isLoading => _isLoading;
 
   Future<void> initialize() async {
+    _isLoading = true;
+    notifyListeners();
+
     _user = await _repository.getCurrentUser();
+
+    _isLoading = false;
     notifyListeners();
   }
 
@@ -27,11 +34,7 @@ class AuthViewModel with ChangeNotifier {
 
   Future<void> register(String email, String password, String name) async {
     try {
-      _user = await _repository.registerWithEmailAndPassword(
-        email,
-        password,
-        name,
-      );
+      _user = await _repository.registerWithEmailAndPassword(email, password, name);
       notifyListeners();
     } catch (e) {
       rethrow;

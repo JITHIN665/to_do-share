@@ -5,7 +5,6 @@ class AuthRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<UserModel?> getCurrentUser() async {
-    print(_auth.currentUser?.uid);
     final user = _auth.currentUser;
     if (user != null) {
       return UserModel(id: user.uid, email: user.email ?? '', name: user.displayName ?? user.email!.split('@')[0]);
@@ -15,7 +14,6 @@ class AuthRepository {
 
   Future<UserModel> signInWithEmailAndPassword(String email, String password) async {
     final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
-    print(credential);
     return UserModel(id: credential.user!.uid, email: credential.user!.email ?? '', name: credential.user!.displayName ?? email.split('@')[0]);
   }
 

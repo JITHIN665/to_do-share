@@ -26,20 +26,12 @@ class AddTaskView extends StatelessWidget {
               CommonTextField(
                 controller: _titleController,
                 labelText: 'Title',
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter a title' : null,
+                validator: (value) => value?.isEmpty ?? true ? 'Please enter a title' : null,
               ),
               const SizedBox(height: 16),
-              CommonTextField(
-                controller: _descriptionController,
-                labelText: 'Description',
-                maxLines: 3,
-              ),
+              CommonTextField(controller: _descriptionController, labelText: 'Description', maxLines: 3),
               const SizedBox(height: 16),
-              DatePickerWidget(
-                onDateSelected: (date) => selectedDate = date,
-                initialDate: DateTime.now().add(const Duration(days: 1)),
-              ),
+              DatePickerWidget(onDateSelected: (date) => selectedDate = date, initialDate: DateTime.now().add(const Duration(days: 1))),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
@@ -54,9 +46,7 @@ class AddTaskView extends StatelessWidget {
                       await taskViewModel.addTask(task);
                       Navigator.pop(context);
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to add task: $e')),
-                      );
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add task: $e')));
                     }
                   }
                 },

@@ -1,4 +1,3 @@
-// presentation/views/login_view.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do/core/utils/routes.dart';

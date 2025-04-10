@@ -23,11 +23,11 @@ class TaskItemWidget extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         leading: Checkbox(value: task.isCompleted, onChanged: (value) => taskViewModel.toggleTaskCompletion(task)),
-        title: Text(task.title, style: TextStyle(decoration: task.isCompleted ? TextDecoration.lineThrough : null)),
+        title: Text(task.title, maxLines: 2, style: TextStyle(decoration: task.isCompleted ? TextDecoration.lineThrough : null)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(DateFormat.yMMMd().add_jm().format(task.dueDate)),
+            Text(DateFormat.yMMMd().add_jm().format(task.dueDate), maxLines: 2),
             if (task.description.isNotEmpty) Text(task.description, maxLines: 1, overflow: TextOverflow.ellipsis),
           ],
         ),

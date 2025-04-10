@@ -8,7 +8,7 @@ import 'package:to_do/presentation/views/home/edit_task_view.dart';
 class TaskDetailView extends StatelessWidget {
   final TaskModel task;
 
-  const TaskDetailView({required this.task});
+  const TaskDetailView({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {
@@ -22,50 +22,32 @@ class TaskDetailView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              task.title,
-              // style: Theme.of(context).textTheme.headline5,
-            ),
+            Text(task.title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: Colors.black)),
             const SizedBox(height: 8),
-            Text(
-              'Due: ${DateFormat.yMMMd().add_jm().format(task.dueDate)}',
-              // style: Theme.of(context).textTheme.subtitle1,
-            ),
+            Text('Due: ${DateFormat.yMMMd().format(task.dueDate)}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black)),
             const SizedBox(height: 8),
             Text(
               'Status: ${task.isCompleted ? 'Completed' : 'Pending'}',
-              // style: Theme.of(context).textTheme.subtitle1,
+              style: TextStyle(fontSize: 1, fontWeight: FontWeight.w700, color: task.isCompleted ? Colors.green : Colors.red),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Description:',
-              // style: Theme.of(context).textTheme.subtitle1!.copyWith(
-              //       fontWeight: FontWeight.bold,
-              //     ),
-            ),
+            Text('Description:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black)),
             Text(task.description),
             if (!isCreator)
               Padding(
                 padding: const EdgeInsets.only(top: 16.0),
-                child: Text(
-                  'Shared by: ${task.creatorId}',
-                  // style: Theme.of(context).textTheme.caption,
-                ),
+                child: Text('Shared by: ${task.creatorId}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.grey)),
               ),
           ],
         ),
       ),
-      floatingActionButton: isCreator
-          ? FloatingActionButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => EditTaskView(task: task),
-                ),
-              ),
-              child: const Icon(Icons.edit),
-            )
-          : null,
+      floatingActionButton:
+          isCreator
+              ? FloatingActionButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EditTaskView(task: task))),
+                child: const Icon(Icons.edit),
+              )
+              : null,
     );
   }
 }

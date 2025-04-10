@@ -5,7 +5,6 @@ import 'package:to_do/presentation/views/auth/register_view.dart';
 import 'package:to_do/presentation/views/home/add_task_view.dart';
 import 'package:to_do/presentation/views/home/edit_task_view.dart';
 import 'package:to_do/presentation/views/home/home_view.dart';
-import 'package:to_do/presentation/views/home/shared_tasks_view.dart';
 import 'package:to_do/presentation/views/home/task_detail_view.dart';
 
 class AppRoutes {
@@ -43,8 +42,6 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => TaskDetailView(task: task),
         );
-      case sharedTasks:
-        return MaterialPageRoute(builder: (_) => SharedTasksView());
       default:
         return _errorRoute('No route defined for ${settings.name}');
     }

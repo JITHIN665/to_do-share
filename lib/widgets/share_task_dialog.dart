@@ -59,7 +59,10 @@ class _ShareTaskDialogState extends State<ShareTaskDialog> {
                     context,
                   ).showSnackBar(SnackBar(content: Text('Task shared with $email'), duration: const Duration(seconds: 2)));
                   Navigator.pop(context);
-                  await Share.share('Check out this task I shared with you!', subject: 'Task Shared via Task App');
+                  await Share.share(
+                    'Check out this task I shared with you!.Please login with this $email if account exist or create a new one.',
+                    subject: 'Task Shared via Task App',
+                  );
                 }
               } catch (e) {
                 if (mounted) {
