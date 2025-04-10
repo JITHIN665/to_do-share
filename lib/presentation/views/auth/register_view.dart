@@ -2,90 +2,54 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do/core/utils/routes.dart';
 import 'package:to_do/presentation/view_models/auth_view_model.dart';
+import 'package:to_do/widgets/custom_text_field.dart';
+import 'package:to_do/widgets/custom_button.dart';
 
-class RegisterView extends StatefulWidget {
-  @override
-  _RegisterViewState createState() => _RegisterViewState();
-}
+class RegisterView extends StatelessWidget {
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-class _RegisterViewState extends State<RegisterView> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _nameController = TextEditingController();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _nameController.dispose();
-    super.dispose();
-  }
+  RegisterView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
+        child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Name'),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter your name' : null,
-              ),
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter your email' : null,
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter your password';
-                  }
-                  if (value!.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
+              const SizedBox(height: 100),
+              const Center(child: Text('Sign Up', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold))),
+              const SizedBox(height: 30),
+              CustomTextField(controller: nameController, hintText: 'Name...'),
+              const SizedBox(height: 12),
+              CustomTextField(controller: emailController, hintText: 'Email...'),
+              const SizedBox(height: 12),
+              CustomTextField(controller: passwordController, hintText: 'Password...', obscureText: true),
+              const SizedBox(height: 50),
+              CustomButton(
+                label: 'Register',
                 onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    try {
-                      await authViewModel.register(
-                        _emailController.text,
-                        _passwordController.text,
-                        _nameController.text,
-                      );
-                      if (authViewModel.isAuthenticated) {
-                        Navigator.pushReplacementNamed(context, AppRoutes.login);
-                      }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Registration failed: $e')),
-                      );
+                  try {
+                    await authViewModel.register(emailController.text, passwordController.text, nameController.text);
+                    if (authViewModel.isAuthenticated) {
+                      Navigator.pushReplacementNamed(context, AppRoutes.login);
                     }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration failed: $e')));
                   }
                 },
-                child: Text('Register'),
               ),
+              const SizedBox(height: 16),
               TextButton(
                 onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.login),
-                child: Text('Already have an account? Login'),
+                child: const Text('Already have an account? Login'),
               ),
             ],
           ),

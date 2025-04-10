@@ -39,6 +39,7 @@ class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin 
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text('My Tasks'),
           actions: [
             IconButton(
@@ -53,12 +54,12 @@ class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin 
           bottom: const TabBar(tabs: [Tab(text: 'My Tasks'), Tab(text: 'Shared With Me')]),
         ),
         floatingActionButton: FloatingActionButton(onPressed: () => Navigator.pushNamed(context, AppRoutes.addTask), child: const Icon(Icons.add)),
-        body: TabBarView(children: [_buildTaskList(taskViewModel.tasks, true), _buildSharedTaskList(taskViewModel.sharedTasks, true)]),
+        body: TabBarView(children: [taskList(taskViewModel.tasks, true), sharedTaskList(taskViewModel.sharedTasks, true)]),
       ),
     );
   }
 
-  Widget _buildTaskList(List<TaskModel> tasks, bool isOwner) {
+  Widget taskList(List<TaskModel> tasks, bool isOwner) {
     final taskViewModel = Provider.of<TaskViewModel>(context, listen: false);
 
     if (taskViewModel.isLoading && tasks.isEmpty) {
@@ -87,14 +88,14 @@ class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin 
             isOwner: isOwner,
             onTap: () => Navigator.pushNamed(context, AppRoutes.taskDetail, arguments: task),
             onEdit: isOwner ? () => Navigator.pushNamed(context, AppRoutes.editTask, arguments: task) : null,
-            onDelete: isOwner ? () => _deleteTask(context, task) : null,
+            onDelete: isOwner ? () => deleteTask(context, task) : null,
           );
         },
       ),
     );
   }
 
-  Widget _buildSharedTaskList(List<TaskModel> sharedTasks, bool isOwner) {
+  Widget sharedTaskList(List<TaskModel> sharedTasks, bool isOwner) {
     final taskViewModel = Provider.of<TaskViewModel>(context, listen: false);
     if (taskViewModel.isLoading && sharedTasks.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -121,14 +122,14 @@ class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin 
             isOwner: isOwner,
             onTap: () => Navigator.pushNamed(context, AppRoutes.taskDetail, arguments: task),
             onEdit: isOwner ? () => Navigator.pushNamed(context, AppRoutes.editTask, arguments: task) : null,
-            onDelete: isOwner ? () => _deleteTask(context, task) : null,
+            onDelete: isOwner ? () => deleteTask(context, task) : null,
           );
         },
       ),
     );
   }
 
-  Future<void> _deleteTask(BuildContext context, TaskModel task) async {
+  Future<void> deleteTask(BuildContext context, TaskModel task) async {
     final taskViewModel = Provider.of<TaskViewModel>(context, listen: false);
     try {
       await taskViewModel.deleteTask(task.id);
