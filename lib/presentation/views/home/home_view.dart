@@ -6,12 +6,33 @@ import 'package:to_do/presentation/view_models/auth_view_model.dart';
 import 'package:to_do/presentation/view_models/task_view_model.dart';
 import 'package:to_do/widgets/task_item_widget.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
   @override
+  _HomeViewState createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+      final taskViewModel = Provider.of<TaskViewModel>(context, listen: false);
+
+      if (authViewModel.isAuthenticated) {
+        taskViewModel.loadTasks();
+        taskViewModel.loadSharedTasks();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final authViewModel = Provider.of<AuthViewModel>(context);
     final taskViewModel = Provider.of<TaskViewModel>(context);
 
     return DefaultTabController(
@@ -23,6 +44,7 @@ class HomeView extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () async {
+                final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
                 await authViewModel.signOut();
                 Navigator.pushReplacementNamed(context, AppRoutes.login);
               },
@@ -31,39 +53,78 @@ class HomeView extends StatelessWidget {
           bottom: const TabBar(tabs: [Tab(text: 'My Tasks'), Tab(text: 'Shared With Me')]),
         ),
         floatingActionButton: FloatingActionButton(onPressed: () => Navigator.pushNamed(context, AppRoutes.addTask), child: const Icon(Icons.add)),
-        body: TabBarView(
-          children: [_TaskList(tasks: taskViewModel.tasks, isOwner: true), _TaskList(tasks: taskViewModel.sharedTasks, isOwner: false)],
-        ),
+        body: TabBarView(children: [_buildTaskList(taskViewModel.tasks, true), _buildSharedTaskList(taskViewModel.sharedTasks, true)]),
       ),
     );
   }
-}
 
-class _TaskList extends StatelessWidget {
-  final List<TaskModel> tasks;
-  final bool isOwner;
-
-  const _TaskList({required this.tasks, required this.isOwner});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTaskList(List<TaskModel> tasks, bool isOwner) {
     final taskViewModel = Provider.of<TaskViewModel>(context, listen: false);
+
+    if (taskViewModel.isLoading && tasks.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (taskViewModel.error != null && tasks.isEmpty) {
+      return Center(child: Text(taskViewModel.error!));
+    }
 
     if (tasks.isEmpty) {
       return const Center(child: Text('No tasks found'));
     }
 
-    return ListView.builder(
-      itemCount: tasks.length,
-      itemBuilder: (context, index) {
-        final task = tasks[index];
-        return TaskItemWidget(
-          task: task,
-          onTap: () => Navigator.pushNamed(context, AppRoutes.taskDetail, arguments: task),
-          onEdit: isOwner ? () => Navigator.pushNamed(context, AppRoutes.editTask, arguments: task) : null,
-          onDelete: isOwner ? () => _deleteTask(context, task) : null,
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        await taskViewModel.loadTasks();
+        await taskViewModel.loadSharedTasks();
       },
+      child: ListView.builder(
+        itemCount: tasks.length,
+        itemBuilder: (context, index) {
+          final task = tasks[index];
+          return TaskItemWidget(
+            task: task,
+            isOwner: isOwner,
+            onTap: () => Navigator.pushNamed(context, AppRoutes.taskDetail, arguments: task),
+            onEdit: isOwner ? () => Navigator.pushNamed(context, AppRoutes.editTask, arguments: task) : null,
+            onDelete: isOwner ? () => _deleteTask(context, task) : null,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSharedTaskList(List<TaskModel> sharedTasks, bool isOwner) {
+    final taskViewModel = Provider.of<TaskViewModel>(context, listen: false);
+    if (taskViewModel.isLoading && sharedTasks.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (taskViewModel.error != null && sharedTasks.isEmpty) {
+      return Center(child: Text(taskViewModel.error!));
+    }
+
+    if (sharedTasks.isEmpty) {
+      return const Center(child: Text('No shared tasks available'));
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await taskViewModel.loadSharedTasks();
+      },
+      child: ListView.builder(
+        itemCount: sharedTasks.length,
+        itemBuilder: (context, index) {
+          final task = sharedTasks[index];
+          return TaskItemWidget(
+            task: task,
+            isOwner: isOwner,
+            onTap: () => Navigator.pushNamed(context, AppRoutes.taskDetail, arguments: task),
+            onEdit: isOwner ? () => Navigator.pushNamed(context, AppRoutes.editTask, arguments: task) : null,
+            onDelete: isOwner ? () => _deleteTask(context, task) : null,
+          );
+        },
+      ),
     );
   }
 

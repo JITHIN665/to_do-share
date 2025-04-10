@@ -8,7 +8,7 @@ class TaskModel {
   final DateTime dueDate;
   final bool isCompleted;
   final String creatorId;
-  final List<String> sharedWith;
+  final List<String> sharedEmails;
   final Timestamp createdAt;
 
   TaskModel({
@@ -18,7 +18,7 @@ class TaskModel {
     required this.dueDate,
     this.isCompleted = false,
     required this.creatorId,
-    this.sharedWith = const [],
+    this.sharedEmails = const [],
     Timestamp? createdAt,
   })  : id = id ?? const Uuid().v4(),
         createdAt = createdAt ?? Timestamp.now();
@@ -31,7 +31,7 @@ class TaskModel {
       dueDate: (map['dueDate'] as Timestamp).toDate(),
       isCompleted: map['isCompleted'],
       creatorId: map['creatorId'],
-      sharedWith: List<String>.from(map['sharedWith']),
+      sharedEmails: List<String>.from(map['sharedEmails'] ?? []),
       createdAt: map['createdAt'],
     );
   }
@@ -44,7 +44,7 @@ class TaskModel {
       'dueDate': Timestamp.fromDate(dueDate),
       'isCompleted': isCompleted,
       'creatorId': creatorId,
-      'sharedWith': sharedWith,
+      'sharedEmails': sharedEmails,
       'createdAt': createdAt,
     };
   }
@@ -54,7 +54,7 @@ class TaskModel {
     String? description,
     DateTime? dueDate,
     bool? isCompleted,
-    List<String>? sharedWith,
+    List<String>? sharedEmails,
   }) {
     return TaskModel(
       id: id,
@@ -63,7 +63,7 @@ class TaskModel {
       dueDate: dueDate ?? this.dueDate,
       isCompleted: isCompleted ?? this.isCompleted,
       creatorId: creatorId,
-      sharedWith: sharedWith ?? this.sharedWith,
+      sharedEmails: sharedEmails ?? this.sharedEmails,
       createdAt: createdAt,
     );
   }

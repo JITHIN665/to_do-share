@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:to_do/core/constants/app_constants.dart';
 import 'package:to_do/data/models/task_model.dart';
 
@@ -12,62 +11,49 @@ class TaskRepository {
         .where('creatorId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .handleError((error) {
-          debugPrint('Error getting tasks: $error');
-          return Stream.value([]);
-        })
         .map((snapshot) => snapshot.docs
             .map((doc) => TaskModel.fromMap(doc.data()))
             .toList());
   }
 
-  Stream<List<TaskModel>> getSharedTasks(String userId) {
+  Stream<List<TaskModel>> getSharedTasks(String email) {
     return _firestore
         .collection(AppConstants.tasksCollection)
-        .where('sharedWith', arrayContains: userId)
+        .where('sharedEmails', arrayContains: email)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .handleError((error) {
-          debugPrint('Error getting shared tasks: $error');
-          return Stream.value([]);
-        })
         .map((snapshot) => snapshot.docs
             .map((doc) => TaskModel.fromMap(doc.data()))
             .toList());
   }
 
   Future<void> addTask(TaskModel task) async {
-    await _firestore.collection(AppConstants.tasksCollection).doc(task.id).set(task.toMap());
+    await _firestore
+        .collection(AppConstants.tasksCollection)
+        .doc(task.id)
+        .set(task.toMap());
   }
 
   Future<void> updateTask(TaskModel task) async {
-    try {
-      final docRef = _firestore.collection(AppConstants.tasksCollection).doc(task.id);
-
-      // First check if document exists
-      final docSnapshot = await docRef.get();
-      if (!docSnapshot.exists) {
-        throw Exception('Task document not found');
-      }
-
-      // Then perform update
-      await docRef.update(task.toMap());
-    } on FirebaseException catch (e) {
-      throw Exception('Failed to update task: ${e.message}');
-    } catch (e) {
-      throw Exception('Unexpected error: $e');
-    }
+    await _firestore
+        .collection(AppConstants.tasksCollection)
+        .doc(task.id)
+        .update(task.toMap());
   }
 
   Future<void> deleteTask(String taskId) async {
-    await _firestore.collection(AppConstants.tasksCollection).doc(taskId).delete();
+    await _firestore
+        .collection(AppConstants.tasksCollection)
+        .doc(taskId)
+        .delete();
   }
 
-  Future<void> shareTask(String taskId, String userId) async {
-    print(taskId);
-    print("gggggggggggggggggggggggggggg");
-    await _firestore.collection(AppConstants.tasksCollection).doc(taskId).update({
-      'sharedWith': FieldValue.arrayUnion([userId]),
+  Future<void> shareTask(String taskId, String email) async {
+    await _firestore
+        .collection(AppConstants.tasksCollection)
+        .doc(taskId)
+        .update({
+      'sharedEmails': FieldValue.arrayUnion([email]),
     });
   }
 }

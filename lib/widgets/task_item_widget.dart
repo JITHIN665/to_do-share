@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do/data/models/task_model.dart';
 import 'package:to_do/presentation/view_models/task_view_model.dart';
@@ -11,14 +12,7 @@ class TaskItemWidget extends StatelessWidget {
   final VoidCallback? onDelete;
   final bool isOwner;
 
-  const TaskItemWidget({
-    required this.task,
-    this.onTap,
-    this.onEdit,
-    this.onDelete,
-    this.isOwner = true,
-    Key? key,
-  }) : super(key: key);
+  const TaskItemWidget({required this.task, this.onTap, this.onEdit, this.onDelete, this.isOwner = true, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,26 +22,13 @@ class TaskItemWidget extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
         onTap: onTap,
-        leading: Checkbox(
-          value: task.isCompleted,
-          onChanged: (value) => taskViewModel.toggleTaskCompletion(task),
-        ),
-        title: Text(
-          task.title,
-          style: TextStyle(
-            decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-          ),
-        ),
+        leading: Checkbox(value: task.isCompleted, onChanged: (value) => taskViewModel.toggleTaskCompletion(task)),
+        title: Text(task.title, style: TextStyle(decoration: task.isCompleted ? TextDecoration.lineThrough : null)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(task.dueDate.toString()),
-            if (task.description.isNotEmpty)
-              Text(
-                task.description,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+            Text(DateFormat.yMMMd().add_jm().format(task.dueDate)),
+            if (task.description.isNotEmpty) Text(task.description, maxLines: 1, overflow: TextOverflow.ellipsis),
           ],
         ),
         trailing: Row(
@@ -56,21 +37,10 @@ class TaskItemWidget extends StatelessWidget {
             if (isOwner) ...[
               IconButton(
                 icon: const Icon(Icons.share),
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (_) => ShareTaskDialog(taskId: task.id),
-                ),
+                onPressed: () => showDialog(context: context, builder: (_) => ShareTaskDialog(taskId: task.id)),
               ),
-              if (onEdit != null)
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: onEdit,
-                ),
-              if (onDelete != null)
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: onDelete,
-                ),
+              if (onEdit != null) IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
+              if (onDelete != null) IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: onDelete),
             ],
           ],
         ),

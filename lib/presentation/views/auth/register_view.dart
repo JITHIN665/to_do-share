@@ -72,7 +72,7 @@ class _RegisterViewState extends State<RegisterView> {
                         _nameController.text,
                       );
                       if (authViewModel.isAuthenticated) {
-                        Navigator.pushReplacementNamed(context, AppRoutes.home);
+                        Navigator.pushReplacementNamed(context, AppRoutes.login);
                       }
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
